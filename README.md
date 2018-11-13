@@ -15,14 +15,16 @@ First attempt at a script to crawl an Islandora 7.x site to get all objects' URL
 
 ## Usage
 
-In the `crawler.php` script, adjust the `$dsid` and `$collection_url` variables:
+In the `crawler.php` script, adjust the `$dsid`, `$base_url`, and `$collection_pid` variables:
 
 ```
 /**
- * You may need to adjust these two variables.
+ * You may need to adjust these three variables.
  */
 $dsid = 'MODS';
-$collection_url = 'http://192.168.0.120:8000/islandora/object/islandora%3Asp_basic_image_collection';
+// Do not include the trailing /.
+$base_url = 'http://192.168.0.120:8000';
+$collection_pid = 'islandora%3Asp_basic_image_collection';
 ```
 
 Then, run the `crawler.php` script:
