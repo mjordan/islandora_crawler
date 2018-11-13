@@ -22,27 +22,34 @@ $last_page_url = $crawler->filter('li.pager-last > a')->extract(array('href'));
 $params = parse_url($last_page_url[0], PHP_URL_QUERY);
 $params = parse_str($params, $pages);
 $pages = range(0, $pages['page']);
-$object_urls = array();
+
+$page_count = 0;
+$url_count = 0;
 
 print "Scraping URLs for the $dsid DSID for the collection starting at $collection_url...\n";
 
 // Scrape each of the parameterized browse pages defined in $pages.
 foreach ($pages as $page) {
+    $page_count++;
     $browse_url = $collection_url . '?page=' . $page;
     $crawler = $client->request('GET', $browse_url);
-    $hrefs = $crawler->filter('dl > dt > a')->extract(array('href'));
-    $object_urls = array_merge($object_urls, $hrefs);
+    // We scrape the TN 'src' URL because it is not affected by URL aliases.
+    $hrefs = $crawler->filter('dl > dt img')->extract(array('src'));
+    foreach ($hrefs as $href) {
+        $dsid_url = href_to_dsid_url($href);
+        $url_count++;
+        // Instead of just printing the download URL, we could download and save it for analysis later.
+        print $dsid_url ."\n";
+    }
 }
 
-// Extract the PID from each object URL. This will be specific to the URLs on the site
-// e.g., specific to path auto URL patterns, etc.
-foreach ($object_urls as &$url) {
-    $url = urldecode($url);
-    $url_parts = explode('/', $url);
-    $pid = $url_parts[2];
-    $ds_download_url = $base_url . $url . '/datastream/' . $dsid . '/download';
-    print $ds_download_url . "\n";
-}
+print "Scraped $url_count URLs from $page_count pages.\n";
 
-$count = count($object_urls);
-print "Scraped $count URLs!\n";
+function href_to_dsid_url ($href) {
+    global $dsid;
+    $href = urldecode($href);
+    // Swap out 'TN' for the DSID configured above.
+    $ds_download_url = preg_replace('/TN/', $dsid, $href);
+    $ds_download_url = preg_replace('/view$/', 'download', $ds_download_url);
+    return $ds_download_url;
+}

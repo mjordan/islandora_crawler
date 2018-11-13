@@ -1,6 +1,6 @@
 # Islandora Crawler
 
-First attempt at a script to crawl an Islandora 7.x site to get all objects' URLs.
+First attempt at a script to crawl an Islandora 7.x site to get the 'download' URLs for a given datastream.
 
 ## Requirements
 
@@ -31,7 +31,7 @@ Then, run the `crawler.php` script:
 
 `php crawler.php`
 
-Currently, the script only prints out the URLs to the DSID download for each object.
+Currently, the script only prints out the URLs to the DSID download for each object. However, we could download and save the datastream.
 
 ## License
 
