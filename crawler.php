@@ -6,7 +6,7 @@
 $dsid = 'MODS';
 // Do not include the trailing /.
 $base_url = 'http://192.168.0.120:8000';
-$collection_pid = 'islandora%3Asp_basic_image_collection'; 
+$collection_pid = 'islandora:sp_basic_image_collection'; 
 
 /**
  * You do not need to adjust anything below this line.
