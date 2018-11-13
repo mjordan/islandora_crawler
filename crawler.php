@@ -37,11 +37,11 @@ foreach ($pages as $page) {
 // Extract the PID from each object URL. This will be specific to the URLs on the site
 // e.g., specific to path auto URL patterns, etc.
 foreach ($object_urls as &$url) {
-    $url = ltrim($url, '/');
-    $pid = preg_replace('#/.*$#', '', $url);
-    $pid = preg_replace('#\-#', ':', $pid);
-    $rels_ext_url = $base_url . '/islandora/object/' . $pid . '/datastream/' . $dsid . '/download';
-    print $rels_ext_url . "\n";
+    $url = urldecode($url);
+    $url_parts = explode('/', $url);
+    $pid = $url_parts[2];
+    $ds_download_url = $base_url . $url . '/datastream/' . $dsid . '/download';
+    print $ds_download_url . "\n";
 }
 
 $count = count($object_urls);
