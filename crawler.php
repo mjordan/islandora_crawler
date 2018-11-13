@@ -1,22 +1,35 @@
 <?php
 
-use Goutte\Client;
-require_once __DIR__ . '/vendor/autoload.php';
+/**
+ * You may need to adjust these two variables.
+ */
+$dsid = 'MODS';
+$collection_url = 'http://192.168.0.120:8000/islandora/object/islandora%3Asp_basic_image_collection';
 
+/**
+ * You do not need to adjust anything below this line.
+ */
+require_once __DIR__ . '/vendor/autoload.php';
+use Goutte\Client;
 $client = new Client();
 
-$browse_url = 'http://digital.lib.sfu.ca/alping-collection/richard-harwood-dick-chambers-alpine-photograph-collection';
-$site_base_url = 'http://digital.lib.sfu.ca';
-// This range corresponds to the number of pages in th collection's browse list.
-$pages = range(0, 68);
+// Get the last page in the collection browse.
+$url_parts = parse_url($collection_url);
+$site_base_url = $url_parts['scheme'] . '//' . $url_parts['host'] . ':' . $url_parts['port'];
+$crawler = $client->request('GET', $collection_url);
+$last_page_url = $crawler->filter('li.pager-last > a')->extract(array('href'));
+$params = parse_url($last_page_url[0], PHP_URL_QUERY);
+$params = parse_str($params, $pages);
+$pages = range(0, $pages['page']);
 $object_urls = array();
 
-print "Scraping object URLs from pages starting at $browse_url...\n";
+print "Scraping object URLs (DSID $dsid) from pages starting at $collection_url...\n";
 
-// Then scrape each of the parameterized browse pages defined in $pages.
+// Scrape each of the parameterized browse pages defined in $pages.
 foreach ($pages as $page) {
-    $crawler = $client->request('GET', $browse_url . '?page=' . $page);
-    $hrefs = $crawler->filter('dd.islandora-object-caption > a')->extract(array('href'));
+    $browse_url = $collection_url . '?page=' . $page;
+    $crawler = $client->request('GET', $browse_url);
+    $hrefs = $crawler->filter('dl > dt > a')->extract(array('href'));
     $object_urls = array_merge($object_urls, $hrefs);
 }
 
@@ -26,7 +39,7 @@ foreach ($object_urls as &$url) {
     $url = ltrim($url, '/');
     $pid = preg_replace('#/.*$#', '', $url);
     $pid = preg_replace('#\-#', ':', $pid);
-    $rels_ext_url = $site_base_url . '/islandora/object/' . $pid . '/datastream/RELS-EXT/download';
+    $rels_ext_url = $site_base_url . '/islandora/object/' . $pid . '/datastream/' . $dsid . '/download';
     print $rels_ext_url . "\n";
 }
 
