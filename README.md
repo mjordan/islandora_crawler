@@ -31,6 +31,8 @@ Then, run the `crawler.php` script:
 
 `php crawler.php`
 
+Currently, the script only prints out the URLs to the DSID download for each object.
+
 ## License
 
 Unlicense.
